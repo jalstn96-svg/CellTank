@@ -25,17 +25,20 @@ public class CorePhysics : MonoBehaviour, Ihittable
     [SerializeField] int bulletDamage = 1;
     [SerializeField] float fireCooldown = 0.3f;
 
-    Rigidbody2D rb;
-    Vector2 dir;
-    float lastFireTime;
+    //[SerializeField] AssembleManager assembleManager;
+    [SerializeField] private Rigidbody2D playerRb;
+    //Vector2 dir;
+    //float lastFireTime;
 
+    
     private Camera mainCamera;
 
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        rb.gravityScale = 0f;
+        playerRb = GetComponentInParent<Rigidbody2D>();
+        //assembleManager = GetComponentInChildren<AssembleManager>();
+        playerRb.gravityScale = 0f;
 
         currentHp = maxHp;
         mainCamera = Camera.main;
@@ -86,11 +89,11 @@ public class CorePhysics : MonoBehaviour, Ihittable
     {
         // 차체 회전
         float rotate = rotateInput * rotateSpeed * Time.fixedDeltaTime;
-        rb.MoveRotation(rb.rotation + rotate);
+        playerRb.MoveRotation(playerRb.rotation + rotate);
 
         // 차체 전후진
         Vector2 dir = transform.up;
-        rb.linearVelocity = dir * moveInput * moveSpeed;
+        playerRb.linearVelocity = dir * moveInput * moveSpeed;
     }
 
     void Fire() // 사격 => 상속으로
@@ -98,7 +101,9 @@ public class CorePhysics : MonoBehaviour, Ihittable
         if (Mouse.current.leftButton.isPressed == true)
         {
             turretManager.TryFire();
-
+            //Time.timeScale = 1;   // for test(RemoveCell)
+            //assembleManager.RemoveCell(new Vector2Int(10,1),assembleManager.testCell);
+            
         }
     
 

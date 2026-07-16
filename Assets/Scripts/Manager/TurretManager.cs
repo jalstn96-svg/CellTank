@@ -26,17 +26,29 @@ public class TurretManager : MonoBehaviour
     void Awake()
     {
         //mainGun = transform.root.gameObject;  // object pool 사용시 최상위 오브젝트 = 오브젝트풀.
-        Enemy enemy = GetComponentInParent<Enemy>();
-        CorePhysics player = GetComponentInParent<CorePhysics>();
 
-        if(enemy != null)
+        // 하이어라키 구조 수정 => 폐기
+        //Enemy enemy = GetComponentInParent<Enemy>();
+        //CorePhysics player = GetComponentInParent<CorePhysics>();
+
+        //if(enemy != null)
+        //{
+        //    mainGun = enemy.gameObject;
+        //}
+        //else if(player != null)
+        //{
+        //    mainGun = player.gameObject;
+        //}
+
+        Rigidbody2D rb = GetComponentInParent<Rigidbody2D>();
+
+        if(rb == null)
         {
-            mainGun = enemy.gameObject;
+            Debug.Log("최상위 rigidbody 찾지 못함");
+            return;
         }
-        else if(player != null)
-        {
-            mainGun = player.gameObject;
-        }
+
+        mainGun = rb.gameObject;
 
 
 
