@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class AssembleManager : MonoBehaviour
 {
 
-    
+
     [SerializeField] private Transform cellRoot;
     [SerializeField] private AssembleGrid assembleGrid;
     [SerializeField] public TankCell testCell;
@@ -15,11 +15,11 @@ public class AssembleManager : MonoBehaviour
     [SerializeField] private Transform attachableSignPosition;
 
     private Vector2 CellSize => assembleGrid.CellSize;
-    
 
+    private TankStatus tankStatus;
 
     // cell 부착 기록 및 cell 상태 관리
-    private Dictionary<Vector2Int, TankCell> installedCells = new Dictionary<Vector2Int, TankCell >();
+    private Dictionary<Vector2Int, TankCell> installedCells = new Dictionary<Vector2Int, TankCell>();
 
     // cell 부착 가능 공간 제한 => 이미 부착된 cell 인근
     private HashSet<Vector2Int> attachablePositions = new HashSet<Vector2Int>();
@@ -30,13 +30,20 @@ public class AssembleManager : MonoBehaviour
 
     // get
     public IEnumerable<Vector2Int> AttachablePositions => attachablePositions;
-    
+
+    private void Awake()
+    {
+        tankStatus = GetComponentInParent<TankStatus>();
+    }
+
+
 
     private void Start()
     {
 
-        installedCells[Vector2Int.zero] = coreCell;
-        
+        installedCells.Add(Vector2Int.zero, coreCell);
+        coreCell.SetAttached(Vector2Int.zero);
+
 
 
         RefreshGrid();
@@ -45,7 +52,7 @@ public class AssembleManager : MonoBehaviour
     }
 
     
-
+    // IsAttachable 빈칸 한정으로 변경
     public bool IsAttachable(Vector2Int cellPosition) 
     {
         if (cellPosition == Vector2Int.zero)
@@ -62,14 +69,71 @@ public class AssembleManager : MonoBehaviour
         return attachablePositions.Contains(cellPosition);
     }
 
+    public bool TryAttach(Vector2Int targetPosition, TankCell newCell, bool wasAttached, Vector2Int previousPosition, Vector3 startPosition)
+    {
+        if (targetPosition == Vector2Int.zero)
+        {
+            return false;
+        }
+
+        if(installedCells.TryGetValue(targetPosition, out TankCell oldCell) == true)
+        {
+            // 1. 장착된 cell 간 위치 변경
+            if (wasAttached)
+            {
+                RemoveCell(targetPosition, oldCell);
+                AttachCell(targetPosition, newCell);
+                AttachCell(previousPosition, oldCell);
+                return true;
+            }
+
+            // 2. 필드 위의 cell과 장착된 cell 교체
+            float resultWeight = tankStatus.CurrentWeight - oldCell.Weight + newCell.Weight;
+            if(resultWeight > tankStatus.MaxWeight)
+            {
+                Debug.Log("cell 교체 하중 초과");
+                return false;
+            }
+
+            RemoveCell(targetPosition, oldCell);
+            AttachCell(targetPosition, newCell);
+
+            return true;
+        }
+
+        if (IsAttachable(targetPosition) == false)
+        {
+            Debug.Log("장착 불가능한 위치");
+            return false;
+        }
+        if (tankStatus.CanAttach(newCell.Weight) == false)
+        {
+            Debug.Log("하중 초과");
+            return false;
+        }
+
+        //3. 빈 cell에 장착
+        AttachCell(targetPosition, newCell);
+
+        return true;
+
+        
+    }
+
     public void AttachCell(Vector2Int cellPosition, TankCell cell)
     {
+
         if (IsAttachable(cellPosition) == false)
         {
+            Debug.Log("설치 가능 위치 없음");
             // 설치 불가 알림? 애니메이션?
             return;
         }
-
+        if (tankStatus.CanAttach(cell.Weight) == false)
+        {
+            Debug.Log("하중 초과");
+            return;
+        }
         
 
         cell.transform.SetParent(cellRoot);
@@ -192,6 +256,12 @@ public class AssembleManager : MonoBehaviour
         
         return new Vector2Int(Mathf.RoundToInt(localPosition.x/CellSize.x), Mathf.RoundToInt(localPosition.y/CellSize.y));
 
+    }
+
+    public bool IsConnected()
+    {
+
+        return false;
     }
 
 

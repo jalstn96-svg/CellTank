@@ -1,16 +1,16 @@
 using UnityEngine;
 
-public abstract class TankCell : MonoBehaviour
+public abstract class TankCell : MonoBehaviour, Ihittable
 {
     [Header("Cell property")]
 
     [SerializeField] float maxDurability; // 실질적인 cell 체력
     [SerializeField] float weight; 
 
-    private float currentDurability;
+    
 
     // get
-    public float CurrentDurability => currentDurability;
+    public float CurrentDurability { get; private set; }
     public float Weight => weight;
 
     // get set
@@ -19,9 +19,9 @@ public abstract class TankCell : MonoBehaviour
     public bool IsDisabled { get; private set; }
     protected TankStatus RootStatus { get; private set; }
 
-    public void Awake()
+    protected virtual void Awake()
     {
-        currentDurability = maxDurability;
+        CurrentDurability = maxDurability;
     }
 
 
@@ -40,30 +40,107 @@ public abstract class TankCell : MonoBehaviour
         IsAttached = true;
 
         RootStatus.AddWeight(weight);
+        if (IsDisabled == false)
+        {
+            OnActivate();
+        }
+        
     }
 
     public void SetDetached()
     {
+        if (IsAttached == false)
+        {
+            return;
+        }
+        if(IsDisabled == false)
+        {
+            OnDeactivate();
+        }
 
         RootStatus.RemoveWeight(weight);
         IsAttached = false;
         RootStatus = null;
+        
     }
 
-    public virtual void TakeDamage()
+    public virtual void TakeDamage(float damage)
+    {
+        if (IsDisabled == true)
+        {
+            return;
+        }
+        CurrentDurability -= damage;
+        if (CurrentDurability <= 0)
+        {
+            Disabled();
+        }
+
+
+    }
+
+    public void Repaired()
+    {
+        if(IsDisabled == true)
+        {
+            return;
+        }
+
+        CurrentDurability = maxDurability;
+
+        OnRestored();   // 애니메이션이나 효과 추가
+    }
+    public void Disabled()
+    {
+        if (IsDisabled == true)
+        {
+            return;
+        }
+        CurrentDurability = 0f; // 관통 시 즉시 disable
+        IsDisabled = true;
+        if (IsAttached)
+        {
+            OnDeactivate();
+        }
+
+        OnDisabled();   //애니메이션이나 효과 추가
+    }
+
+   
+
+
+    protected virtual void OnDisabled()
+    {
+
+    }
+    protected virtual void OnRestored()
+    {
+
+    }
+    protected virtual void OnActivate()
+    {
+
+    }
+    protected virtual void OnDeactivate()
     {
 
     }
 
-    public virtual void Disable()
+    
+    public void TakeDamage(int damage)
     {
-
-    }
-    public virtual void Restore()
-    {
-
+        
     }
 
+    public virtual ProjectileHitResult Hit(ref ProjectileHitInit hitInit)
+    {
 
+        if (IsDisabled)
+        {
+            return ProjectileHitResult.Passed;
+        }
+        TakeDamage(hitInit.power);
 
+        return ProjectileHitResult.Hitted;
+    }
 }

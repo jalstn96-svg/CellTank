@@ -20,8 +20,8 @@ public class TurretManager : MonoBehaviour
 
     public float reloadRatio => Mathf.Clamp01(reloadTimer / fireCoolDown); // for reloading gauge ui
 
-    public bool canFire => reloadTimer >= fireCoolDown; 
-
+    public bool canFire => reloadTimer >= fireCoolDown;
+    private bool isAbled = true;
 
     void Awake()
     {
@@ -58,6 +58,11 @@ public class TurretManager : MonoBehaviour
 
     void Update()
     {
+        if (isAbled == false)
+        {
+            return;
+        }
+
         if (reloadTimer < fireCoolDown)
         {
             reloadTimer += Time.deltaTime;
@@ -66,6 +71,10 @@ public class TurretManager : MonoBehaviour
 
     public void TryFire()
     {
+        if (isAbled != true)
+        {
+            return;
+        }
         if (canFire != true) //사격 불가능
         {
             return;
@@ -89,7 +98,7 @@ public class TurretManager : MonoBehaviour
         reloadTimer = 0f;
 
     }
-    void SetLayer()
+    private void SetLayer()
     {
         if (mainGun.layer == LayerMask.NameToLayer("Player"))
         {
@@ -106,5 +115,15 @@ public class TurretManager : MonoBehaviour
 
     }
 
+    public void SetAbled(bool isBool)
+    {
+        isAbled = isBool;
+    }
+
+    public void SetRoot(GameObject root)
+    {
+        mainGun = root;
+        SetLayer();
+    }
 
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class Enemy : MonoBehaviour, Ihittable
+public class Enemy : MonoBehaviour
 {
     [Header("Hp")]
     [SerializeField] private int maxHp = 3;

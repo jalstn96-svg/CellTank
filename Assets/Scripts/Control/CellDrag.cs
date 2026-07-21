@@ -10,6 +10,7 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
     private Collider2D cellCollider;
     private Vector3 startPosition;
     private Transform cellParent;
+    private Vector2Int previousPosition;
 
     private TankCell tankCell;
 
@@ -19,12 +20,21 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
     {
         mainCamera = Camera.main;
         tankCell = GetComponent<TankCell>();
+        cellCollider = GetComponent<Collider2D>();
     }
 
 
     // drag start
     public void OnBeginDrag(PointerEventData eventData)
     {
+
+
+        if (tankCell.IsDisabled)
+        {
+            return;
+        }
+
+
         startPosition = this.transform.position;
         cellParent = this.transform.parent;
 
@@ -33,10 +43,16 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
 
         if(isAttached == true)
         {
-
+            previousPosition = tankCell.CellPosition;
             targetCell.RemoveCell(tankCell.CellPosition, tankCell);
         }
-        
+
+        if (cellCollider != null)
+        {
+            cellCollider.enabled = false;
+
+        }
+        else Debug.Log("cell Collider 에러");
         
 
     }
@@ -59,29 +75,34 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
 
         Vector2Int targetPosition = targetCell.PositionWorldToLocal(this.transform.position);
 
-        if (targetCell.IsAttachable(targetPosition))
-        {
-            
-            targetCell.AttachCell(targetPosition, tankCell);
-        }
+        bool isPlaced = targetCell.TryAttach(targetPosition, tankCell,isAttached,previousPosition,startPosition);
 
-        else if (isAttached == true)
+        if(isPlaced == false)
         {
-            targetCell.AttachCell(tankCell.CellPosition, tankCell);
+            if (isAttached == true)
+            {
+                targetCell.AttachCell(previousPosition, tankCell);
+                
+
+            }
+            else
+            {
+                transform.SetParent(cellParent);
+
+                this.transform.position = startPosition;    //  되돌아가는 것
+            }
+
+
         }
-        else
-        {
-            transform.SetParent(cellParent);
-            //this.transform.position = startPosition;    //  되돌아가는 것
-        }
+        cellCollider.enabled = true;
+        
+                        
+        
 
         //this.transform.position = mousePosition;    //  마우스 위치에 놓는 것.
 
         
         
-        
-        
-
         // cell 장착 파트
 
     }

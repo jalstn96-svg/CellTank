@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class CorePhysics : MonoBehaviour, Ihittable
+public class CorePhysics : MonoBehaviour
 {
     [Header("MinimalMovement")]
     [SerializeField] float moveSpeed = 0.1f;
@@ -34,7 +34,7 @@ public class CorePhysics : MonoBehaviour, Ihittable
     private Camera mainCamera;
 
 
-    void Awake()
+    private void Awake()
     {
         playerRb = GetComponentInParent<Rigidbody2D>();
         //assembleManager = GetComponentInChildren<AssembleManager>();
@@ -47,14 +47,14 @@ public class CorePhysics : MonoBehaviour, Ihittable
     
 
 
-    void Update()
+    private void Update()
     {
         MoveInput();
         TurretInput();
         Fire();
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         MoveTank();
     }

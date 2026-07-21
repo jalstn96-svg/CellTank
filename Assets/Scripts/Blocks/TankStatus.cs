@@ -4,20 +4,22 @@ public class TankStatus : MonoBehaviour
 {
 
 
-    private float maxWeight;
+    private float maxWeight=20f;
     
-    private float currentWeight;
+    private float currentWeight = 0f;
     private float engineOutput;
 
 
-    private float baseSpeed;
+    private float baseSpeed = 10f;
     private float speed;
     private float speedRatioAtMaxWeight = 0.5f;
     private float weightSpeedRatio;
     private float weightRatio;
+    //public bool canAttach;
 
     private Rigidbody2D rb;
 
+    public float Speed => speed;
     public float MaxWeight => maxWeight;
     public float CurrentWeight => currentWeight;
     public float EngineOutput => engineOutput;
@@ -28,6 +30,7 @@ public class TankStatus : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        
         RefreshStatus();
 
     }
@@ -73,7 +76,14 @@ public class TankStatus : MonoBehaviour
         speed = (baseSpeed + engineOutput) * weightSpeedRatio;
 
         // 아래는 rigidbody mass
-        rb.mass = currentWeight;
+        rb.mass = 1f + currentWeight;
+        
+    }
+
+    public bool CanAttach(float cellWeight)
+    {
+       
+         return currentWeight + cellWeight <= maxWeight;
         
     }
 
