@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EngineCell : TankCell, Ihittable
+public class EngineCell : TankCell
 {
     [Header("Engine property")]
     [SerializeField] private float engineOutput;

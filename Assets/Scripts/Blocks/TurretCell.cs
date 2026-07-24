@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class TurretCell : TankCell, Ihittable
+public abstract class TurretCell : TankCell
 {
 
     [Header("Turret")]

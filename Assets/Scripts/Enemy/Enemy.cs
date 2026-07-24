@@ -28,7 +28,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] GameObject BulletPrefab;
     [SerializeField] int bulletDamage;
     [SerializeField] float fireCooldown = 2f;
-    
+
+    private string poolId;
+    private bool isDead;
 
     //[Header("Drop")]
     //[SerializeField] GameObject CoinPrefab;
@@ -167,6 +169,13 @@ public class Enemy : MonoBehaviour
         return player != null;
     }
 
+    public ProjectileHitResult Hit(ref ProjectileHitInit hitInit)
+    {
+        TakeDamage(hitInit.damage);
+
+        return ProjectileHitResult.Hitted;
+    }
+
     public void TakeDamage(int damage)  // 코어 데미지 계산
     {
         currentHp -= damage;
@@ -220,6 +229,11 @@ public class Enemy : MonoBehaviour
 
     //}
 
+    public void SetPoolId(string _poolId)
+    {
+        poolId = _poolId;
+    }
+
     private void Die()
     {
         Debug.Log("적 사망");
@@ -234,7 +248,7 @@ public class Enemy : MonoBehaviour
         GameManager.instance.IncreaseAlert();
 
 
-        ObjectPool.instance.ReturnObject("Enemy", gameObject);  // 추후 수정 필요
+        EnemyPool.instance.ReturnObject(poolId, gameObject);  // 추후 수정 필요
         //Destroy(gameObject);
     }
 }

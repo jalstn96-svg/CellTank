@@ -1,16 +1,19 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class ObjectPool : MonoBehaviour
-{
-    public static ObjectPool instance;
 
-    [SerializeField] List<GameObject> objList = new List<GameObject>();
-  
-    
+
+
+public class EnemyPool : MonoBehaviour
+{
+    public static EnemyPool instance;
+
+    [SerializeField] private List<GameObject> enemyList = new List<GameObject>();
+
+    [SerializeField] private int poolSize;
     private Dictionary<string, Queue<GameObject>> poolList = new Dictionary<string, Queue<GameObject>>();
 
-    int poolSize;
+    
     //private Queue<GameObject> EnemyPool = new Queue<GameObject>();
     //private Queue<GameObject> BulletPool = new Queue<GameObject>();
 
@@ -24,16 +27,18 @@ public class ObjectPool : MonoBehaviour
             instance = this;
         }
         else Destroy(gameObject);
-        
-        
+
+
     }
 
     void Start()
     {
-        poolSize = 20;
+        
 
-        foreach(GameObject obj in objList)
+        foreach (GameObject obj in enemyList)
         {
+            
+
             poolList[obj.name] = new Queue<GameObject>();
             GameObject parentPool = new GameObject($"{obj.name}_Pool");
             parentPool.transform.SetParent(this.transform);
@@ -41,6 +46,8 @@ public class ObjectPool : MonoBehaviour
             for (int i = 0; i < poolSize; i++)
             {
                 GameObject poolObject = Instantiate(obj, parentPool.transform);
+                Enemy enemy = poolObject.GetComponent<Enemy>();
+                enemy.SetPoolId(obj.name);
                 poolObject.SetActive(false);
                 poolList[obj.name].Enqueue(poolObject);
 
@@ -65,25 +72,26 @@ public class ObjectPool : MonoBehaviour
         }
         else
         {
-            GameObject poolObject = Instantiate(objList.Find(obj => obj.name == name));
+            GameObject poolObject = Instantiate(enemyList.Find(obj => obj.name == name));
             return poolObject;
         }
 
 
     }
 
-    public void ReturnObject(string name, GameObject poolObject)
+    public void ReturnObject(string poolId, GameObject poolObject)
     {
-        if (!poolList.ContainsKey(name))
+        if (poolList.ContainsKey(poolId)== false)
         {
+            Debug.Log("enemyPool return Error");
             Destroy(poolObject);
             return;
         }
         poolObject.SetActive(false);
-        poolList[name].Enqueue(poolObject);
+        poolList[poolId].Enqueue(poolObject);
     }
 
 
-    
+
 
 }

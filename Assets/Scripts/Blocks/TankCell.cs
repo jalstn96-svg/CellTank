@@ -5,8 +5,10 @@ public abstract class TankCell : MonoBehaviour, Ihittable
     [Header("Cell property")]
 
     [SerializeField] float maxDurability; // 실질적인 cell 체력
-    [SerializeField] float weight; 
+    [SerializeField] float weight;
 
+    [SerializeField] private Vector2Int gridPosition;
+    public Vector2Int GridPosition => gridPosition;
     
 
     // get
@@ -14,7 +16,9 @@ public abstract class TankCell : MonoBehaviour, Ihittable
     public float Weight => weight;
 
     // get set
-    public Vector2Int CellPosition { get; private set; }
+    public Vector2Int CellPosition {
+        get;
+        private set; }
     public bool IsAttached { get; private set; }
     public bool IsDisabled { get; private set; }
     protected TankStatus RootStatus { get; private set; }
@@ -34,9 +38,10 @@ public abstract class TankCell : MonoBehaviour, Ihittable
 
         TankStatus rootParent = GetComponentInParent<TankStatus>();
 
-
+        
         RootStatus = rootParent;
         CellPosition = cellPosition;
+        gridPosition = cellPosition;
         IsAttached = true;
 
         RootStatus.AddWeight(weight);

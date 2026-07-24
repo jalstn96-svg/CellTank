@@ -11,9 +11,12 @@ public class AssembleManager : MonoBehaviour
     [SerializeField] private TankCell coreCell;
 
     // 부착 가능 미리보기
+    [SerializeField] private bool showAttachableView = true;
     [SerializeField] private SpriteRenderer attachableSign;
     [SerializeField] private Transform attachableSignPosition;
 
+    
+    
     private Vector2 CellSize => assembleGrid.CellSize;
 
     private TankStatus tankStatus;
@@ -229,6 +232,11 @@ public class AssembleManager : MonoBehaviour
 
         attachableSigns.Clear();
 
+        // 부착 가능 표시 on/off
+        if(showAttachableView == false)
+        {
+            return;
+        }
         
         
 
@@ -264,6 +272,23 @@ public class AssembleManager : MonoBehaviour
         return false;
     }
 
-
     
+    public void EnemyPresetInit()
+    {
+        installedCells.Clear();
+
+        TankCell[] presetCells = cellRoot.GetComponentsInChildren<TankCell>(true);
+
+        foreach(TankCell cell in presetCells)
+        {
+            installedCells.Add(cell.GridPosition, cell);
+            cell.SetAttached(cell.GridPosition);
+
+        }
+
+        RefreshGrid();
+
+    }
+  
+
 }

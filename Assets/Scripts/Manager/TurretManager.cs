@@ -7,7 +7,7 @@ public class TurretManager : MonoBehaviour
 
     [Header("Bullet Stats")]
     [SerializeField] float fireCoolDown;
-
+    [SerializeField] float bulletPower=1f;
     [SerializeField] float bulletSpeed;
     [SerializeField] int bulletDamage;
     [SerializeField] float bulletLifeTime;
@@ -93,7 +93,7 @@ public class TurretManager : MonoBehaviour
 
         Bullet bullet = bulletObject.GetComponent<Bullet>();
 
-        bullet.Init(bulletStartPosition.up, bulletSpeed, bulletDamage, bulletLifeTime, penetration, targetLayer, mainGun);
+        bullet.Init(bulletStartPosition.up, bulletSpeed, bulletPower,bulletDamage, bulletLifeTime, penetration, targetLayer, mainGun);
 
         reloadTimer = 0f;
 
