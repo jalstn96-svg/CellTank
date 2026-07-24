@@ -4,21 +4,25 @@ public class TankStatus : MonoBehaviour
 {
 
 
-    private float maxWeight=20f;
+    private float maxWeight=100f;
     
     private float currentWeight = 0f;
     private float engineOutput;
 
 
-    private float baseSpeed = 10f;
+    private float baseSpeed = 2f;
+    private float baseRotateSpeed = 30f;
     private float speed;
+    private float rotateSpeed;
     private float speedRatioAtMaxWeight = 0.5f;
     private float weightSpeedRatio;
+    private float weightRotateRatio;
     private float weightRatio;
     //public bool canAttach;
 
     private Rigidbody2D rb;
 
+    public float RotateSpeed => rotateSpeed;
     public float Speed => speed;
     public float MaxWeight => maxWeight;
     public float CurrentWeight => currentWeight;
@@ -72,9 +76,10 @@ public class TankStatus : MonoBehaviour
 
         // 1부터 0.5(최대하중 속도비)까지 weightRatio의 비율로 나눔.
         weightSpeedRatio = Mathf.Lerp(1f, speedRatioAtMaxWeight, weightRatio);
+        weightRotateRatio = Mathf.Lerp(1f, speedRatioAtMaxWeight, weightRatio);
 
         speed = (baseSpeed + engineOutput) * weightSpeedRatio;
-
+        rotateSpeed = (baseRotateSpeed + engineOutput) * weightRotateRatio;
         // 아래는 rigidbody mass
         rb.mass = 1f + currentWeight;
         

@@ -9,7 +9,7 @@ public abstract class TankCell : MonoBehaviour, Ihittable
 
     [SerializeField] private Vector2Int gridPosition;
     public Vector2Int GridPosition => gridPosition;
-    
+    [SerializeField] private CellPhysics cellPhysics;
 
     // get
     public float CurrentDurability { get; private set; }
@@ -26,7 +26,21 @@ public abstract class TankCell : MonoBehaviour, Ihittable
     protected virtual void Awake()
     {
         CurrentDurability = maxDurability;
+        if(cellPhysics == null)
+        {
+            cellPhysics = GetComponent<CellPhysics>();
+        }
+        if(cellPhysics == null)
+        {
+            cellPhysics = GetComponentInParent<CellPhysics>();
+
+        }
+        if(cellPhysics == null)
+        {
+            cellPhysics = GetComponentInChildren<CellPhysics>();
+        }
     }
+
 
 
     public void SetAttached(Vector2Int cellPosition)
@@ -35,6 +49,7 @@ public abstract class TankCell : MonoBehaviour, Ihittable
         {
             return;
         }
+        gameObject.layer = transform.parent.gameObject.layer;
 
         TankStatus rootParent = GetComponentInParent<TankStatus>();
 
@@ -108,6 +123,8 @@ public abstract class TankCell : MonoBehaviour, Ihittable
             OnDeactivate();
         }
 
+        cellPhysics.SetDisabledVisual();
+
         OnDisabled();   //애니메이션이나 효과 추가
     }
 
@@ -130,12 +147,21 @@ public abstract class TankCell : MonoBehaviour, Ihittable
     {
 
     }
+    /// <summary>
+    /// 파괴된 cell을 가진 enemy가 pool에서 재소환 될 때 복구용도
+    /// </summary>
+    //public void ResetCell()
+    //{
+    //    bool wasDisabled = IsDisabled;
+    //    CurrentDurability = maxDurability;
+    //    IsDisabled = false;
+    //    cellPhysics.RestorVisual();
+    //    if(wasDisabled && IsAttached)
+    //    {
 
-    
-    public void TakeDamage(int damage)
-    {
-        
-    }
+    //    }
+    //}
+   
 
     public virtual ProjectileHitResult Hit(ref ProjectileHitInit hitInit)
     {
@@ -147,5 +173,36 @@ public abstract class TankCell : MonoBehaviour, Ihittable
         TakeDamage(hitInit.power);
 
         return ProjectileHitResult.Hitted;
+    }
+
+    public void ResetCell()
+    {
+        if(cellPhysics == null)
+        {
+            cellPhysics = GetComponent<CellPhysics>();
+        }
+
+        if(cellPhysics == null)
+        {
+            cellPhysics = GetComponentInChildren<CellPhysics>();
+
+        }
+
+        bool wasDisabled = IsDisabled;
+        
+
+        CurrentDurability = maxDurability;
+        IsDisabled = false;
+
+        if (cellPhysics != null)
+        {
+            cellPhysics.RestoreVisual();
+        }
+
+        
+        if (wasDisabled&&IsAttached)
+        {
+            OnActivate();
+        }
     }
 }

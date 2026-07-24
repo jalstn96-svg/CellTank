@@ -44,8 +44,7 @@ public class AssembleManager : MonoBehaviour
     private void Start()
     {
 
-        installedCells.Add(Vector2Int.zero, coreCell);
-        coreCell.SetAttached(Vector2Int.zero);
+        InstalledCellsInit();
 
 
 
@@ -70,6 +69,34 @@ public class AssembleManager : MonoBehaviour
 
         
         return attachablePositions.Contains(cellPosition);
+    }
+
+    private void InstalledCellsInit()
+    {
+        installedCells.Clear();
+        TankCell[] cells = cellRoot.GetComponentsInChildren<TankCell>(true);
+        foreach (TankCell cell in cells)
+        {
+            Vector2Int cellPosition;
+            if(cell == coreCell)
+            {
+                cellPosition = Vector2Int.zero;
+            }
+            else
+            {
+                cellPosition = PositionWorldToLocal(cell.transform.position);
+            }
+
+            if (installedCells.ContainsKey(cellPosition))
+            {
+                Debug.Log($"Cell 위치 중복{cellPosition}");
+                continue;
+            }
+
+            cell.SetAttached(cellPosition);
+            installedCells.Add(cellPosition, cell);
+
+        }
     }
 
     public bool TryAttach(Vector2Int targetPosition, TankCell newCell, bool wasAttached, Vector2Int previousPosition, Vector3 startPosition)

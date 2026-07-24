@@ -61,6 +61,7 @@ public class EnemyPool : MonoBehaviour
     {
         if (!poolList.ContainsKey(name))
         {
+            Debug.Log($"pool 내에서 {name} 발견되지 않음.");
             return null;
         }
 
@@ -73,6 +74,11 @@ public class EnemyPool : MonoBehaviour
         else
         {
             GameObject poolObject = Instantiate(enemyList.Find(obj => obj.name == name));
+            TankCell[] cells = GetComponentsInChildren<TankCell>(true);
+            foreach(TankCell cell in cells)
+            {
+                cell.ResetCell();
+            }
             return poolObject;
         }
 

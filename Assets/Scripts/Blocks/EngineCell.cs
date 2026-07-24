@@ -16,6 +16,8 @@ public class EngineCell : TankCell
     }
     protected override void OnActivate()
     {
+        Debug.Log($"Engine 활성화됨 {RootStatus},{engineOutput}");
+
         if(RootStatus == null)
         {
             Debug.Log("RootStatus null");
@@ -33,8 +35,5 @@ public class EngineCell : TankCell
         RootStatus.RemoveEngineOutput(engineOutput);
     }
 
-    public void TakeDamage(int damage)
-    {
-        throw new System.NotImplementedException();
-    }
+  
 }

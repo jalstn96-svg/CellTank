@@ -15,6 +15,7 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
     private TankCell tankCell;
 
     private bool isAttached;
+    private bool isEngineering=false;
 
     private void Awake()
     {
@@ -28,6 +29,10 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
     public void OnBeginDrag(PointerEventData eventData)
     {
 
+        if (isAttached && !isEngineering)
+        {
+            return;
+        }// 추후 삭제
 
         if (tankCell.IsDisabled)
         {

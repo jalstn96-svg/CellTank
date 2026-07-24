@@ -82,7 +82,7 @@ public class ArmorCell : TankCell
     public override ProjectileHitResult Hit(ref ProjectileHitInit hitInit)
     {
         ArmorHitResult result = ArmorHitCalculator(ref hitInit.penetration, ref hitInit.power, hitInit.direction, hitInit.cellSurface);
-        
+        Debug.Log("armor hit");
         switch(result)
         {
             case ArmorHitResult.Passed:

@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class CorePhysics : MonoBehaviour
 {
     [Header("MinimalMovement")]
-    [SerializeField] float moveSpeed = 0.1f;
+    [SerializeField] float moveSpeed = 2f;
     [SerializeField] float rotateSpeed = 30f;
 
     float moveInput;
@@ -25,6 +25,9 @@ public class CorePhysics : MonoBehaviour
     [SerializeField] int bulletDamage = 1;
     [SerializeField] float fireCooldown = 0.3f;
 
+    [Header("Status")]
+    [SerializeField] TankStatus tankStatus;
+
     //[SerializeField] AssembleManager assembleManager;
     [SerializeField] private Rigidbody2D playerRb;
     //Vector2 dir;
@@ -37,6 +40,7 @@ public class CorePhysics : MonoBehaviour
     private void Awake()
     {
         playerRb = GetComponentInParent<Rigidbody2D>();
+        tankStatus = GetComponentInParent<TankStatus>();
         //assembleManager = GetComponentInChildren<AssembleManager>();
         playerRb.gravityScale = 0f;
 
@@ -88,12 +92,12 @@ public class CorePhysics : MonoBehaviour
     void MoveTank()
     {
         // 차체 회전
-        float rotate = rotateInput * rotateSpeed * Time.fixedDeltaTime;
+        float rotate = rotateInput * tankStatus.RotateSpeed * Time.fixedDeltaTime;
         playerRb.MoveRotation(playerRb.rotation + rotate);
 
         // 차체 전후진
         Vector2 dir = transform.up;
-        playerRb.linearVelocity = dir * moveInput * moveSpeed;
+        playerRb.linearVelocity = dir * moveInput * tankStatus.Speed;
     }
 
     void Fire() // 사격 => 상속으로

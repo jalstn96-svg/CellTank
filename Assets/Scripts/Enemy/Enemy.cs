@@ -29,8 +29,11 @@ public class Enemy : MonoBehaviour
     [SerializeField] int bulletDamage;
     [SerializeField] float fireCooldown = 2f;
 
+    [Header("Status")]
+    [SerializeField] private TankStatus tankStatus;
     private string poolId;
     private bool isDead;
+    private TankCell[] cells;
 
     //[Header("Drop")]
     //[SerializeField] GameObject CoinPrefab;
@@ -45,10 +48,11 @@ public class Enemy : MonoBehaviour
     {
         currentHp = maxHp;
         rb = GetComponent<Rigidbody2D>();
+        cells = GetComponentsInChildren<TankCell>(true);
+        tankStatus = GetComponent<TankStatus>();
     }
     void Start()
     {
-        
         if (playerPosition == null)
         {
             CorePhysics player = FindAnyObjectByType<CorePhysics>();
@@ -57,16 +61,14 @@ public class Enemy : MonoBehaviour
 
         }
 
-
-
-
     }
 
     void OnEnable()
     {
+
         currentHp = maxHp;
         //fireTimer = 0f;
-
+        ResetEnemyCells();
         if(rb != null)
         {
             rb.linearVelocity = Vector2.zero;
@@ -93,7 +95,13 @@ public class Enemy : MonoBehaviour
         turretManager.TryFire();
     }
 
-
+    private void ResetEnemyCells()
+    {
+        foreach (TankCell cell in cells)
+        {
+            cell.ResetCell();
+        }
+    }
     private void FixedUpdate()
     {
         if (playerPosition == null)
@@ -116,7 +124,7 @@ public class Enemy : MonoBehaviour
 
         float targetAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f;    // PreFab 이미지가 위를 보고 생성됨..
 
-        float nextAngle = Mathf.MoveTowardsAngle(rb.rotation, targetAngle, rotateSpeed*Time.fixedDeltaTime);    //이동할 각도방향 및 속도 설정
+        float nextAngle = Mathf.MoveTowardsAngle(rb.rotation, targetAngle, tankStatus.RotateSpeed*Time.fixedDeltaTime);    //이동할 각도방향 및 속도 설정
 
         rb.MoveRotation(nextAngle); //실제 next angle로 차체 회전 시작
 
@@ -127,7 +135,9 @@ public class Enemy : MonoBehaviour
     {
         
         float pveDistance = Vector2.Distance(transform.position, playerPosition.position);
-        
+
+        moveSpeed = tankStatus.Speed;
+
         if(pveDistance <= inRange-1f)
         {
             rb.linearVelocity = transform.up * moveSpeed * -1;

@@ -75,7 +75,7 @@ public class MobSpawner : MonoBehaviour
         Vector2 spawnPosition = SpawnPosition();
 
 
-        GameObject enemyObject = EnemyPool.instance.GetObject("Enemy"); // prefab 이름    (추후 수정 필요)
+        GameObject enemyObject = EnemyPool.instance.GetObject("Enemy2"); // prefab 이름    (추후 수정 필요)
 
         enemyObject.transform.SetPositionAndRotation(spawnPosition, Quaternion.identity);
         //Instantiate(enemy, spawnPosition, Quaternion.identity);
@@ -96,8 +96,6 @@ public class MobSpawner : MonoBehaviour
             
             
         }
-
-        
 
         //카메라 범위는 좌측하단(0,0)부터 우측 상단(1,1)까지로 정규화
         Vector3 spawnPositionExpCamera = mainCamera.ViewportToWorldPoint(new Vector3(x , y));    // 카메라 외곽 경계선 이후 x만큼, y만큼 결정
