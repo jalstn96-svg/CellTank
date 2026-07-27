@@ -1,17 +1,22 @@
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 
 public class GameManager : MonoBehaviour
 {
 
     public static GameManager instance;
+    public static int bestKillCount;
     public int killCount;
+    int currentAlert;
     [SerializeField] public int waveUpgrade= 5;
+
+    
+    
     
 
     private GameState state;
-    
+    public GameState State => state;
 
     private void Awake()
     {
@@ -28,6 +33,8 @@ public class GameManager : MonoBehaviour
         killCount = 0;
         MobSpawner.instance.alert = 1;
         state = GameState.Playing;
+        UIManager.instance.KillCountText(killCount);
+        UIManager.instance.AlertCountText(1);
     }
     public void AddKillCount()   // 킬카운트로 교체
     {
@@ -47,6 +54,16 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("게임오버");
         state = GameState.GameOver;
+
+        if(killCount > bestKillCount)
+        {
+            bestKillCount = killCount;
+        }
+
+        currentAlert = MobSpawner.instance.alert;
+        UIManager.instance.ShowGameOver(killCount, currentAlert);
+        
+
     }
 
     public void GamePause()
@@ -54,6 +71,25 @@ public class GameManager : MonoBehaviour
         state = GameState.Pause;
         Time.timeScale = 0;
     }
+
+    public void GameUnpause()
+    {
+        state = GameState.Playing;
+        Time.timeScale = 1f;
+    }
+
+    public void Restart() 
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("GameScene");
+    }
+
+    public void BackToMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("StartScene");
+    }
+
     public void IncreaseAlert()
     {
         if (MobSpawner.instance.alert == 5)

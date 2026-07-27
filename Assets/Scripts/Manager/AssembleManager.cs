@@ -6,6 +6,7 @@ public class AssembleManager : MonoBehaviour
 
 
     [SerializeField] private Transform cellRoot;
+    [SerializeField] private Transform turretRoot;
     [SerializeField] private AssembleGrid assembleGrid;
     [SerializeField] public TankCell testCell;
     [SerializeField] private TankCell coreCell;
@@ -164,9 +165,19 @@ public class AssembleManager : MonoBehaviour
             Debug.Log("하중 초과");
             return;
         }
-        
 
-        cell.transform.SetParent(cellRoot);
+        Transform attachParent; // 해당 cell의 root 결정을 위한 transform 선언
+        
+        if(cell is TurretCell)
+        {
+            attachParent = turretRoot;
+        }
+        else
+        {
+            attachParent = cellRoot;
+        }
+        cell.transform.SetParent(attachParent);
+
 
         cell.transform.localPosition = new Vector2(cellPosition.x * CellSize.x, cellPosition.y * CellSize.y);
         cell.transform.localRotation = Quaternion.identity;

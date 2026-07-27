@@ -75,7 +75,7 @@ public class MobSpawner : MonoBehaviour
         Vector2 spawnPosition = SpawnPosition();
 
 
-        GameObject enemyObject = EnemyPool.instance.GetObject("Enemy2"); // prefab 이름    (추후 수정 필요)
+        GameObject enemyObject = EnemyPool.instance.GetObject("Enemy3"); // prefab 이름    (추후 수정 필요)
 
         enemyObject.transform.SetPositionAndRotation(spawnPosition, Quaternion.identity);
         //Instantiate(enemy, spawnPosition, Quaternion.identity);

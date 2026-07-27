@@ -41,8 +41,6 @@ public abstract class TankCell : MonoBehaviour, Ihittable
         }
     }
 
-
-
     public void SetAttached(Vector2Int cellPosition)
     {
         if (IsAttached == true)
@@ -112,6 +110,8 @@ public abstract class TankCell : MonoBehaviour, Ihittable
     }
     public void Disabled()
     {
+        
+
         if (IsDisabled == true)
         {
             return;
@@ -123,7 +123,10 @@ public abstract class TankCell : MonoBehaviour, Ihittable
             OnDeactivate();
         }
 
-        cellPhysics.SetDisabledVisual();
+        if (cellPhysics != null)
+        {
+            cellPhysics.SetDisabledVisual();
+        }
 
         OnDisabled();   //애니메이션이나 효과 추가
     }

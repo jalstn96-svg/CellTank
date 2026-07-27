@@ -14,10 +14,10 @@ public class CorePhysics : MonoBehaviour
     [SerializeField] int maxHp = 5;
     int currentHp;
 
-    [Header("Turret")]
-    [SerializeField] Transform Turret;
-    [SerializeField] Transform BulletStart;
-    [SerializeField] float turretRotateSpeed = 45f;
+    //[Header("Turret")]
+    //[SerializeField] Transform Turret;
+    //[SerializeField] Transform BulletStart;
+    //[SerializeField] float turretRotateSpeed = 45f;
 
     [Header("Fire")]
     [SerializeField] TurretManager turretManager;
@@ -122,25 +122,17 @@ public class CorePhysics : MonoBehaviour
     }
     void TurretInput()
     {
-        Vector2 aimDir = Vector2.zero;
+        //Vector2 aimDir = Vector2.zero;
 
 
         Vector2 mousePos = Mouse.current.position.ReadValue();
         Vector2 mouseWorldPos = mainCamera.ScreenToWorldPoint(mousePos);
 
-        aimDir = mouseWorldPos - (Vector2)Turret.position;
-
-     
-
-        aimDir = aimDir.normalized;
-        float targetAngle = Mathf.Atan2(aimDir.y, aimDir.x) * Mathf.Rad2Deg-90f;
-        float currentAngle = Turret.eulerAngles.z;
-
-        float angle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, turretRotateSpeed * Time.deltaTime);
-
-        Turret.rotation = Quaternion.Euler(0f, 0f, angle);
+        turretManager.Aim(mouseWorldPos);
 
     }
+
+
 
     public void TakeDamage(int damage)
     {

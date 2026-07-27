@@ -1,36 +1,48 @@
 using UnityEngine;
 
-public abstract class TurretCell : TankCell
+public abstract class TurretCell : TankCell, ITurret
 {
+    
 
     [Header("Turret")]
     [SerializeField] protected TurretManager turretManager;
 
-    public void TakeDamage(int damage)
-    {
-        throw new System.NotImplementedException();
-    }
-
+    
     protected override void Awake()
     {
         base.Awake();
 
-        if (turretManager == null)
-        {
-            Debug.Log("turretManager 인식 안됨. 호출 완료");
-            turretManager = GetComponentInChildren<TurretManager>();
-        }
-
+       
 
     }
     protected override void OnActivate()
     {
-        turretManager.SetRoot(RootStatus.gameObject);
-        turretManager.SetAbled(true);
+        if (turretManager == null)
+        {
+            Debug.Log("turretManager 인식 안됨. 호출 시도");
+            turretManager = RootStatus.GetComponentInChildren<TurretManager>();
+            if (turretManager == null)
+            {
+                Debug.Log("turretManager 인식 불가");
+                return;
+            }
+            Debug.Log("turretManager 호출 완료");
+        }
+
+        turretManager.RegisterTurret(this);
+        
     }
 
     protected override void OnDeactivate()
     {
-        turretManager.SetAbled(false);
+        if(turretManager == null)
+        {
+            return;
+        }
+        turretManager.UnregisterTurret(this);
     }
+    public abstract void Aim(Vector2 targetPosition);
+
+    public abstract void TryFire();
+
 }

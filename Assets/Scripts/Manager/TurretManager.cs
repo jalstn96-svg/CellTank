@@ -1,27 +1,14 @@
-using Unity.VisualScripting;
+
 using UnityEngine;
+using System.Collections.Generic;
 
 public class TurretManager : MonoBehaviour
 {
-    [SerializeField]  Transform bulletStartPosition;
 
-    [Header("Bullet Stats")]
-    [SerializeField] float fireCoolDown;
-    [SerializeField] float bulletPower=1f;
-    [SerializeField] float bulletSpeed;
-    [SerializeField] int bulletDamage;
-    [SerializeField] float bulletLifeTime;
-    [SerializeField] float penetration;
-    float reloadTimer;
-
-    GameObject mainGun;
-    int bulletLayer;    // 탄 레이어 => 타격 판정
-    LayerMask targetLayer;  // 맞을 판정 타겟 레이어
-
-    public float reloadRatio => Mathf.Clamp01(reloadTimer / fireCoolDown); // for reloading gauge ui
-
-    public bool canFire => reloadTimer >= fireCoolDown;
+    
     private bool isAbled = true;
+
+    private readonly List<ITurret> activeTurrets = new List<ITurret>();
 
     void Awake()
     {
@@ -48,82 +35,83 @@ public class TurretManager : MonoBehaviour
             return;
         }
 
-        mainGun = rb.gameObject;
-
-
-
-        reloadTimer = fireCoolDown;
-        SetLayer();
+        
     }
 
-    void Update()
-    {
-        if (isAbled == false)
-        {
-            return;
-        }
+    
 
-        if (reloadTimer < fireCoolDown)
-        {
-            reloadTimer += Time.deltaTime;
-        }
-    }
+   
 
     public void TryFire()
     {
-        if (isAbled != true)
+        foreach(ITurret turret in activeTurrets)
         {
-            return;
-        }
-        if (canFire != true) //사격 불가능
-        {
-            return;
+            turret.TryFire();
         }
 
-        GameObject bulletObject = ObjectPool.instance.GetObject("Bullet");  //추후 탄 구분 시 수정(탄 넘버링)
+
+
+        //GameObject bulletObject = ObjectPool.instance.GetObject("Bullet");  //추후 탄 구분 시 수정(탄 넘버링)
         
-        if(bulletObject == null)    // object pool에 탄 없음(버그대비)
+        //if(bulletObject == null)    // object pool에 탄 없음(버그대비)
+        //{
+        //    Debug.Log("objectpool empty error");
+        //    return;
+        //}
+
+        //bulletObject.transform.SetPositionAndRotation(bulletStartPosition.position, bulletStartPosition.rotation);
+        //bulletObject.layer = bulletLayer;
+
+        //Bullet bullet = bulletObject.GetComponent<Bullet>();
+
+        //bullet.Init(bulletStartPosition.up, bulletSpeed, bulletPower,bulletDamage, bulletLifeTime, penetration, targetLayer, mainGun);
+
+        //reloadTimer = 0f;
+
+    }
+    
+
+    
+
+    
+    
+
+    public void RegisterTurret(ITurret turret)
+    {
+        if(turret == null)
         {
-            Debug.Log("objectpool empty error");
+            Debug.Log("turret 인식안됨.");
             return;
         }
-
-        bulletObject.transform.SetPositionAndRotation(bulletStartPosition.position, bulletStartPosition.rotation);
-        bulletObject.layer = bulletLayer;
-
-        Bullet bullet = bulletObject.GetComponent<Bullet>();
-
-        bullet.Init(bulletStartPosition.up, bulletSpeed, bulletPower,bulletDamage, bulletLifeTime, penetration, targetLayer, mainGun);
-
-        reloadTimer = 0f;
-
-    }
-    private void SetLayer()
-    {
-        if (mainGun.layer == LayerMask.NameToLayer("Player"))
+        if (activeTurrets.Contains(turret))
         {
-            bulletLayer = LayerMask.NameToLayer("PlayerBullet");
-            targetLayer = LayerMask.GetMask("Enemy");
-
+            Debug.Log("활성화 목록에 이미 존재함.");
+            return;
         }
-        else if (mainGun.layer == LayerMask.NameToLayer("Enemy"))
+        activeTurrets.Add(turret);
+
+    }
+
+
+
+    public void UnregisterTurret(ITurret turret)
+    {
+        if(turret == null)
         {
-            bulletLayer = LayerMask.NameToLayer("EnemyBullet");
-            targetLayer = LayerMask.GetMask("Player","Enemy");
-
+            Debug.Log("turret 인식안됨.");
+            return;
         }
+        activeTurrets.Remove(turret);
 
     }
 
-    public void SetAbled(bool isBool)
+    public void Aim(Vector2 targetPosition)
     {
-        isAbled = isBool;
+        foreach(ITurret turret in activeTurrets)
+        {
+            turret.Aim(targetPosition);
+        }
     }
-
-    public void SetRoot(GameObject root)
-    {
-        mainGun = root;
-        SetLayer();
-    }
+    
 
 }

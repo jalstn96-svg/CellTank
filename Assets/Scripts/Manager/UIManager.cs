@@ -4,10 +4,14 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager instance;
 
+    [Header("Combat HUD")]
     [SerializeField] TextMeshProUGUI killCountText;
     [SerializeField] TextMeshProUGUI alertCountText;
 
-
+    [Header("Game Over")]
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private TextMeshProUGUI resultKillText;
+    [SerializeField] private TextMeshProUGUI resultAlertText;
 
     public void Awake()
     {
@@ -15,16 +19,24 @@ public class UIManager : MonoBehaviour
         {
             instance = this;
         }
-        else Destroy(gameObject);
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-        DontDestroyOnLoad(gameObject);
         
     }
 
     void Start()
     {
-        killCountText.text = "kill count : 0";
-        alertCountText.text = $"alert : 1";
+        KillCountText(0);
+        AlertCountText(1);
+        // 이미 존재하는 gameover 패널 종료
+        if(gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(false);
+        }
     }
 
 
@@ -35,6 +47,17 @@ public class UIManager : MonoBehaviour
     }
     public void AlertCountText(int alert)
     {
-        alertCountText.text = $"alert : {alert}";
+        alertCountText.text = $"Alert : {alert}";
     }
+
+    public void ShowGameOver(int killCount, int maxAlert)
+    {
+        gameOverPanel.SetActive(true);
+
+        resultKillText.text = $"{killCount} kill";
+        resultAlertText.text = $"Highest Alert : {maxAlert}";
+
+
+    }
+
 }

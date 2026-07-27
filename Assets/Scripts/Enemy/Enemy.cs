@@ -19,15 +19,10 @@ public class Enemy : MonoBehaviour
     [SerializeField] LayerMask playerLayer;
 
 
-    [Header("Body")]
-    [SerializeField] Transform Turret;
-    [SerializeField] Transform BulletStart;
 
     [Header("Fire")]
     [SerializeField] TurretManager turretManager;
-    [SerializeField] GameObject BulletPrefab;
-    [SerializeField] int bulletDamage;
-    [SerializeField] float fireCooldown = 2f;
+
 
     [Header("Status")]
     [SerializeField] private TankStatus tankStatus;
@@ -53,13 +48,21 @@ public class Enemy : MonoBehaviour
     }
     void Start()
     {
-        if (playerPosition == null)
+        if (playerPosition != null)
         {
-            CorePhysics player = FindAnyObjectByType<CorePhysics>();
-
-            playerPosition = player.transform;
+            return;
 
         }
+
+        CorePhysics player = FindAnyObjectByType<CorePhysics>();
+
+        if(player != null)
+        {
+            playerPosition = player.transform;
+        }
+
+        
+
 
     }
 
@@ -85,7 +88,7 @@ public class Enemy : MonoBehaviour
         
         }
 
-        Aim();
+        turretManager.Aim(playerPosition.position);
 
         if (PlayerInRange() == false)
         {
@@ -156,13 +159,18 @@ public class Enemy : MonoBehaviour
 
     bool PlayerInRange()
     {
-        Vector2 myPos = Turret.position;
-        Vector2 dir = playerPosition.position - Turret.position;
+        Vector2 myPos = transform.position;
+        Vector2 dir = (Vector2)playerPosition.position - myPos;
 
         float distance = dir.magnitude;
 
         if (distance>inRange)
         { 
+            return false;
+        }
+
+        if(dir == Vector2.zero)
+        {
             return false;
         }
 
@@ -198,23 +206,23 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void Aim()
-    {
-        Vector2 dir = playerPosition.position - Turret.position;
+    //void Aim()
+    //{
+    //    Vector2 dir = playerPosition.position - Turret.position;
 
-        if (dir == Vector2.zero)    // 유저 위치 확인 안됨 -> 반환
-        {
-            return; 
-        }
+    //    if (dir == Vector2.zero)    // 유저 위치 확인 안됨 -> 반환
+    //    {
+    //        return; 
+    //    }
 
-        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg-90f;    // 현재 이미지가 위를 보고있음.
+    //    float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg-90f;    // 현재 이미지가 위를 보고있음.
 
-        float currentAngle = Turret.eulerAngles.z;
-        float targetAngle = Mathf.MoveTowardsAngle(currentAngle, angle, turretRotateSpeed * Time.deltaTime);
+    //    float currentAngle = Turret.eulerAngles.z;
+    //    float targetAngle = Mathf.MoveTowardsAngle(currentAngle, angle, turretRotateSpeed * Time.deltaTime);
 
 
-        Turret.rotation = Quaternion.Euler(0f, 0f, targetAngle);
-    }
+    //    Turret.rotation = Quaternion.Euler(0f, 0f, targetAngle);
+    //}
 
     //void FireTimer()
     //{

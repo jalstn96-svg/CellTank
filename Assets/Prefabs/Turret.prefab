@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3618998535435564446}
   - component: {fileID: 1983165418089520719}
-  - component: {fileID: 4310813274508508892}
   m_Layer: 0
   m_Name: Turret
   m_TagString: Untagged
@@ -94,24 +93,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &4310813274508508892
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2991608516712618537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c5a8c710d810c5479e0a7bff605e30f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TurretManager
-  bulletStartPosition: {fileID: 8952127704396192512}
-  fireCoolDown: 3
-  bulletSpeed: 10
-  bulletDamage: 3
-  bulletLifeTime: 2
-  penetration: 10
 --- !u!1 &5705924988339576769
 GameObject:
   m_ObjectHideFlags: 0
