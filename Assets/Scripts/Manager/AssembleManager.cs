@@ -16,7 +16,7 @@ public class AssembleManager : MonoBehaviour
     [SerializeField] private SpriteRenderer attachableSign;
     [SerializeField] private Transform attachableSignPosition;
 
-    
+    private MaintenanceManager maintenanceManager;
     
     private Vector2 CellSize => assembleGrid.CellSize;
 
@@ -37,6 +37,7 @@ public class AssembleManager : MonoBehaviour
 
     private void Awake()
     {
+        maintenanceManager = FindAnyObjectByType<MaintenanceManager>();
         tankStatus = GetComponentInParent<TankStatus>();
     }
 
@@ -127,7 +128,10 @@ public class AssembleManager : MonoBehaviour
             }
 
             RemoveCell(targetPosition, oldCell);
+            
             AttachCell(targetPosition, newCell);
+            maintenanceManager.ThrowCell(oldCell);
+
 
             return true;
         }
@@ -208,15 +212,49 @@ public class AssembleManager : MonoBehaviour
             return;
         }
 
-        cell.SetDetached();
-        installedCells.Remove(cellPosition);
-        cell.transform.SetParent(null);
+        if(DetachedCellCalc(cellPosition, cell)==false)
+        {
+            return;
+        }
+
+        
 
         
         RefreshGrid();
         RefreshAttachablePositions();
 
     }
+
+    private bool DetachedCellCalc(Vector2Int cellPosition, TankCell cell)
+    {
+        if(cell == null || !cell.IsAttached)
+        {
+            return false;
+        }
+        if(cellPosition == Vector2Int.zero)
+        {
+            // 코어
+            return false;
+        }
+
+        if(!installedCells.TryGetValue(cellPosition, out TankCell installedCell))
+        {
+
+            return false;
+        }
+        if(installedCell != cell) { return false; }
+        
+        installedCells.Remove(cellPosition);
+
+        cell.SetDetached();
+        
+        cell.transform.SetParent(null);
+
+
+        return true;
+
+    }
+
 
     public void RefreshGrid()
     {
@@ -304,13 +342,69 @@ public class AssembleManager : MonoBehaviour
 
     }
 
-    public bool IsConnected()
+    private HashSet<Vector2Int> CoreConnectedPositions()
     {
+        HashSet<Vector2Int> connected = new HashSet<Vector2Int>();
 
-        return false;
+        SearchConnectedCell(Vector2Int.zero, connected);
+
+        return connected;
     }
 
-    
+    private void SearchConnectedCell(Vector2Int position, HashSet<Vector2Int> connected)
+    {
+        if (installedCells.ContainsKey(position) == false)
+        {
+            return;
+        }
+        if (connected.Add(position) == false)
+        {
+            return;
+        }
+
+        foreach(Vector2Int direction in checkAttachableDir)
+        {
+            SearchConnectedCell(position + direction, connected);
+        }
+
+    }
+    private void DetachDisconnectedCells()
+    {
+        HashSet<Vector2Int> connected = CoreConnectedPositions();
+
+        List<Vector2Int> disconnectedPositions = new List<Vector2Int>();
+
+        foreach(Vector2Int position in installedCells.Keys)
+        {
+            if (connected.Contains(position) == false)
+            {
+                disconnectedPositions.Add(position);
+            }
+        }
+        foreach(Vector2Int position in disconnectedPositions)
+        {
+            TankCell cell = installedCells[position];
+
+            if (DetachedCellCalc(position, cell) == true)
+            {
+                maintenanceManager.ThrowCell(cell);
+            }
+            
+        }
+
+    }
+    public void RemoveByRClick(Vector2Int cellPosition, TankCell cell)
+    {
+        if (DetachedCellCalc(cellPosition, cell) == false)
+        {
+            return;
+        }
+        DetachDisconnectedCells();
+
+        RefreshGrid();
+        RefreshAttachablePositions();
+    }
+
     public void EnemyPresetInit()
     {
         installedCells.Clear();

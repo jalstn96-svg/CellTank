@@ -26,7 +26,7 @@ public class CorePhysics : MonoBehaviour
     [SerializeField] float fireCooldown = 0.3f;
 
     [Header("Status")]
-    [SerializeField] TankStatus tankStatus;
+    [SerializeField] public TankStatus tankStatus;
 
     //[SerializeField] AssembleManager assembleManager;
     [SerializeField] private Rigidbody2D playerRb;
@@ -53,6 +53,18 @@ public class CorePhysics : MonoBehaviour
 
     private void Update()
     {
+        if(GameManager.instance.State == GameState.MaintenanceCall)
+        {
+            TurretInput();
+            Fire();
+            return;
+        }
+
+        if(GameManager.instance.State != GameState.Playing)
+        {
+            return;
+        }
+
         MoveInput();
         TurretInput();
         Fire();
@@ -60,6 +72,11 @@ public class CorePhysics : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (GameManager.instance.State != GameState.Playing)
+        {
+            return;
+        }
+
         MoveTank();
     }
 

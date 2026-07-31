@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CoreTurret : MonoBehaviour, ITurret
 {
@@ -15,6 +16,18 @@ public class CoreTurret : MonoBehaviour, ITurret
     [SerializeField] private float bulletLifeTime = 3f;
     [SerializeField] private float penetration = 10f;
 
+    [Header("Reload Gauge")]
+    [SerializeField] private GameObject reloadGauge;
+    [SerializeField] private Transform reloadGaugeFill;
+    [SerializeField] private SpriteRenderer reloadGaugeFillsr;
+    [SerializeField] private Gradient reloadGradient;
+    public float reloadRatio => Mathf.Clamp01(reloadTimer / fireCoolDown); // for reloading gauge ui
+    private float ratio;
+
+    private Vector3 reloadFillScale;
+    private Vector3 maxGaugeScale;
+    private Vector3 scale;
+
     private TurretManager turretManager;
     private GameObject mainGun;
     private float reloadTimer;
@@ -22,15 +35,23 @@ public class CoreTurret : MonoBehaviour, ITurret
     private int bulletLayer;
     private LayerMask targetLayer;
 
+    
+
     private void Awake()
     {
+
+
         turretManager = GetComponentInParent<TurretManager>();
         Rigidbody2D rootRb = GetComponentInParent<Rigidbody2D>();
+        
+        
         if(rootRb != null)
         {
             mainGun = rootRb.gameObject;
             SetLayer();
         }
+        maxGaugeScale = reloadGaugeFill.localScale;
+        reloadGauge.SetActive(true);
         reloadTimer = fireCoolDown;
     }
 
@@ -45,8 +66,25 @@ public class CoreTurret : MonoBehaviour, ITurret
         {
             reloadTimer += Time.deltaTime;
         }
+        UpdateReloadGauge();
     }
 
+    private void UpdateReloadGauge()
+    {
+        if (reloadGaugeFill == null)
+        {
+            return;
+        }
+
+        ratio = reloadRatio;
+        scale = maxGaugeScale;
+        scale.x *= maxGaugeScale.x * ratio;
+
+        reloadGaugeFill.localScale = scale;
+
+
+
+    }
 
     public void Aim(Vector2 targetPosition)
     {

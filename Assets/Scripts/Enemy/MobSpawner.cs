@@ -4,11 +4,11 @@ using UnityEngine;
 public class MobSpawner : MonoBehaviour
 {
     public static MobSpawner instance;
-
+    private CameraMove cameraMove;
     
 
     public GameObject enemy;
-
+    
 
     [Header("스폰 타이머")]
     [SerializeField] float spawnCoolTime = 5f;     //계획은 40f,
@@ -18,6 +18,7 @@ public class MobSpawner : MonoBehaviour
     [Header("스폰 영역")]
     [SerializeField] float maxSpawnDistance;
     [SerializeField] float minSpawnDistance;
+    
     Camera mainCamera;
     float cameraEdge;
     float x, y;
@@ -28,11 +29,14 @@ public class MobSpawner : MonoBehaviour
 
     [Header("경계도")]
     [SerializeField] public int alert;
-
-
+    int alertLv;
+    int variation;
+    string poolId;
 
     private void Awake()
     {
+        mainCamera = Camera.main;
+        cameraMove = mainCamera.GetComponent<CameraMove>();
         if(instance == null)
         {
             instance = this;
@@ -53,8 +57,10 @@ public class MobSpawner : MonoBehaviour
 
     private void Update()
     {
+        GameState state = GameManager.instance.State;
+
         EnemySpawnedCheck();
-        if (isPaused)
+        if (isPaused || (state != GameState.Playing && state != GameState.MaintenanceCall))
         {
             return;
         }
@@ -63,23 +69,46 @@ public class MobSpawner : MonoBehaviour
         if (spawnTimer > spawnCoolTime)
         {
             spawnTimer = 0f;
-            SummonEnemy();
-            countSpawnedEnemy++;
+            if (SummonEnemy() == true)
+            {
+                countSpawnedEnemy++;
+            }
+            
         }
     }
 
 
-    private void SummonEnemy()
+    private bool SummonEnemy()
     {
 
         Vector2 spawnPosition = SpawnPosition();
 
+        alertLv = Mathf.Clamp(alert, 1, 5);
 
-        GameObject enemyObject = EnemyPool.instance.GetObject("Enemy3"); // prefab 이름    (추후 수정 필요)
+        variation = Random.Range(1, 5);
+        if (alert == 5)
+        {
+            variation = 1;
+        }
+
+        poolId = $"Enemy_V{alertLv}_{variation}";
+
+
+        GameObject enemyObject = EnemyPool.instance.GetObject(poolId); // prefab 이름    (추후 수정 필요)
+
+        if (enemyObject == null)
+        {
+            Debug.Log("Enemy prefab not exist");
+            return false;
+        }
 
         enemyObject.transform.SetPositionAndRotation(spawnPosition, Quaternion.identity);
         //Instantiate(enemy, spawnPosition, Quaternion.identity);
 
+        Enemy enemyComponent = enemyObject.GetComponent<Enemy>();
+        enemyComponent.SetPoolId(poolId);
+
+        return true;
         
     }
 
@@ -98,9 +127,12 @@ public class MobSpawner : MonoBehaviour
         }
 
         //카메라 범위는 좌측하단(0,0)부터 우측 상단(1,1)까지로 정규화
-        Vector3 spawnPositionExpCamera = mainCamera.ViewportToWorldPoint(new Vector3(x , y));    // 카메라 외곽 경계선 이후 x만큼, y만큼 결정
+        Vector3 cameraPosition = mainCamera.transform.position;
+
+        float spawnX = cameraPosition.x + (x - 0.5f)  * cameraMove.MaxZoom * mainCamera.aspect;
+        float spawnY = cameraPosition.y + (y - 0.5f)  * cameraMove.MaxZoom * mainCamera.aspect;
         //spawnPositionExpCamera.z = 0f;
-        return spawnPositionExpCamera;
+        return new Vector2(spawnX, spawnY);
 
 
     }

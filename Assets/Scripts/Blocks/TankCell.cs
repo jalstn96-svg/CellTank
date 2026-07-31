@@ -4,6 +4,7 @@ public abstract class TankCell : MonoBehaviour, Ihittable
 {
     [Header("Cell property")]
 
+    [SerializeField] private string cellName;
     [SerializeField] float maxDurability; // 실질적인 cell 체력
     [SerializeField] float weight;
 
@@ -11,7 +12,36 @@ public abstract class TankCell : MonoBehaviour, Ihittable
     public Vector2Int GridPosition => gridPosition;
     [SerializeField] private CellPhysics cellPhysics;
 
+    public string CellTypeName
+    {
+        get
+        {
+            if (this is ArmorCell)
+            {
+                return "장갑";
+            }
+
+            if (this is EngineCell)
+            {
+                return "엔진";
+            }
+            if (this is TurretCell)
+            {
+                return "포탑";
+            }
+            if (this is CoreCell)
+            {
+                return "코어";
+            }
+            
+            return "null";
+        }
+    }
+
+
     // get
+    public string CellName => cellName;
+    public float MAxDurability => maxDurability;
     public float CurrentDurability { get; private set; }
     public float Weight => weight;
 
@@ -48,9 +78,16 @@ public abstract class TankCell : MonoBehaviour, Ihittable
             return;
         }
         gameObject.layer = transform.parent.gameObject.layer;
-
+        Rigidbody2D detachRb = GetComponent<Rigidbody2D>();
         TankStatus rootParent = GetComponentInParent<TankStatus>();
 
+        if(detachRb != null)
+        {
+            detachRb.linearVelocity = Vector2.zero;
+            detachRb.angularVelocity = 0f;
+            detachRb.simulated = false;
+            Destroy(detachRb);
+        }
         
         RootStatus = rootParent;
         CellPosition = cellPosition;
@@ -89,6 +126,11 @@ public abstract class TankCell : MonoBehaviour, Ihittable
             return;
         }
         CurrentDurability -= damage;
+
+        float durabilityRatio = CurrentDurability / maxDurability;
+
+        cellPhysics.UpdateVisual(durabilityRatio);
+
         if (CurrentDurability <= 0)
         {
             Disabled();
@@ -110,18 +152,18 @@ public abstract class TankCell : MonoBehaviour, Ihittable
     }
     public void Disabled()
     {
-        
-
         if (IsDisabled == true)
         {
             return;
         }
         CurrentDurability = 0f; // 관통 시 즉시 disable
         IsDisabled = true;
-        if (IsAttached)
+        if (!IsAttached)
         {
-            OnDeactivate();
+            RemoveDroppedCell();
+            return;
         }
+        OnDeactivate();
 
         if (cellPhysics != null)
         {
@@ -131,12 +173,16 @@ public abstract class TankCell : MonoBehaviour, Ihittable
         OnDisabled();   //애니메이션이나 효과 추가
     }
 
-   
+   private void RemoveDroppedCell()
+    {
+        Destroy(gameObject);
+
+    }
 
 
     protected virtual void OnDisabled()
     {
-
+        UIManager.instance.HideCellInfo();
     }
     protected virtual void OnRestored()
     {
@@ -208,4 +254,30 @@ public abstract class TankCell : MonoBehaviour, Ihittable
             OnActivate();
         }
     }
+
+    
+
+    public void PrepareAsDrop()
+    {
+        if(IsAttached && !IsDisabled)
+        {
+            OnDeactivate();
+        }
+
+        IsAttached = false;
+        RootStatus = null;
+        CellPosition = Vector2Int.zero;
+
+        CellDrag cellDrag = GetComponent<CellDrag>();
+
+        if(cellDrag != null)
+        {
+            cellDrag.enabled = false;
+        }
+        
+
+    }
+
+    
+
 }

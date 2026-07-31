@@ -15,7 +15,7 @@ public class Enemy : MonoBehaviour
 
     [Header("Target")]
     [SerializeField] Transform playerPosition;
-    [SerializeField] float inRange = 5f;        // 사격 사거리
+    float inRange = 20f;        // 사격 사거리
     [SerializeField] LayerMask playerLayer;
 
 
@@ -30,6 +30,13 @@ public class Enemy : MonoBehaviour
     private bool isDead;
     private TankCell[] cells;
 
+    [Header("Cell Drop")]
+    
+    [SerializeField] private float cellDropMove = 0.1f;
+
+
+    
+    
     //[Header("Drop")]
     //[SerializeField] GameObject CoinPrefab;
 
@@ -68,7 +75,7 @@ public class Enemy : MonoBehaviour
 
     void OnEnable()
     {
-
+        isDead = false;
         currentHp = maxHp;
         //fireTimer = 0f;
         ResetEnemyCells();
@@ -254,7 +261,14 @@ public class Enemy : MonoBehaviour
 
     private void Die()
     {
+        if(isDead == true)
+        {
+            return;
+        }
+
         Debug.Log("적 사망");
+        isDead = true;
+        DropCell();
 
         //if(CoinPrefab != null)
         //{
@@ -269,4 +283,73 @@ public class Enemy : MonoBehaviour
         EnemyPool.instance.ReturnObject(poolId, gameObject);  // 추후 수정 필요
         //Destroy(gameObject);
     }
+
+    public void RemoveByAirDrop()
+    {
+        MobSpawner.instance.DecreaseEnemyCount();
+        EnemyPool.instance.ReturnObject(poolId, gameObject);
+    }
+
+    // pool로 돌아가는 enemy의 cell을 복사하여 투척
+    private void DropCell()
+    {
+        foreach(TankCell cell in cells)
+        {
+            if (cell == null)
+            {
+                continue;
+            }
+
+            // 코어는 드랍x
+            if(cell is CoreCell)
+            {
+                continue;
+
+
+            }
+
+            // 파괴된 cell은 드랍x
+            if (cell.IsDisabled == true)
+            {
+                continue;
+            }
+
+            GameObject droppedObject = Instantiate(cell.gameObject, cell.transform.position, cell.transform.rotation);
+
+            
+
+            droppedObject.transform.SetParent(null);
+
+            TankCell droppedCell = droppedObject.GetComponent<TankCell>();
+
+            if(droppedCell == null)
+            {
+                Destroy(droppedObject);
+                continue;
+            }
+
+            droppedCell.PrepareAsDrop();
+
+            
+            Rigidbody2D droppedRb = droppedObject.AddComponent<Rigidbody2D>();
+            
+
+
+            droppedRb.bodyType = RigidbodyType2D.Dynamic;
+            droppedRb.gravityScale = 0f;
+            droppedRb.interpolation = RigidbodyInterpolation2D.Interpolate;
+
+            Vector2 randomDirection = Random.insideUnitCircle.normalized;
+
+            droppedRb.linearVelocity = randomDirection * cellDropMove;
+
+
+
+        }
+    }
+
+    
+
+
+
 }

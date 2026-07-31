@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler
+public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private AssembleManager targetCell;
 
@@ -16,41 +16,55 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
 
     private bool isAttached;
     private bool isEngineering=false;
+    private bool canDrag;
+
+    private MaintenanceManager maintenanceManager;
 
     private void Awake()
     {
         mainCamera = Camera.main;
         tankCell = GetComponent<TankCell>();
         cellCollider = GetComponent<Collider2D>();
+        maintenanceManager = FindAnyObjectByType<MaintenanceManager>();
     }
 
 
     // drag start
     public void OnBeginDrag(PointerEventData eventData)
     {
+        canDrag = false;
 
-        if (isAttached && !isEngineering)
+        if (isEngineering == true)
         {
-            return;
-        }// 추후 삭제
+            if (GameManager.instance.State != GameState.Maintenance)
+            {
+                Debug.Log("정비 타임 아님.");
+                return;
+            }
+        }
 
-        if (tankCell.IsDisabled)
+        
+        if (tankCell.IsAttached == true)
         {
+            Debug.Log("장착된 cell은 드래그 불가");
             return;
         }
 
+        if (tankCell.IsDisabled)
+        {
+            Debug.Log("파괴된 cell은 교체만 가능.");
+            return;
+        }
+
+        canDrag = true;
 
         startPosition = this.transform.position;
         cellParent = this.transform.parent;
 
-        // 이미 붙어있는걸 옮길 경우 => 집을 때 해제
-        isAttached = tankCell.IsAttached;
+        // 이미 붙어있는걸 옮길 경우 => 못잡게
+        
 
-        if(isAttached == true)
-        {
-            previousPosition = tankCell.CellPosition;
-            targetCell.RemoveCell(tankCell.CellPosition, tankCell);
-        }
+        
 
         if (cellCollider != null)
         {
@@ -64,7 +78,10 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
     // in drag
     public void OnDrag(PointerEventData eventData)
     {
-
+        if (canDrag==false)
+        {
+            return;
+        }
         // eventData.position => 화면 size 기반
         Vector3 dragPosition = new Vector3(eventData.position.x, eventData.position.y, -mainCamera.transform.position.z);
 
@@ -74,7 +91,9 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
     // drop
     public void OnEndDrag(PointerEventData eventData)
     {
+        if(canDrag == false) { return; }
 
+        canDrag = false;
         Vector3 endPosition = new Vector3(eventData.position.x, eventData.position.y, -mainCamera.transform.position.z);
         Vector3 mousePosition = mainCamera.ScreenToWorldPoint(endPosition);
 
@@ -84,23 +103,15 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
 
         if(isPlaced == false)
         {
-            if (isAttached == true)
-            {
-                targetCell.AttachCell(previousPosition, tankCell);
-                
+            
+            transform.SetParent(cellParent);
 
-            }
-            else
-            {
-                transform.SetParent(cellParent);
-
-                this.transform.position = startPosition;    //  되돌아가는 것
-            }
-
+            transform.position = startPosition;    //  되돌아가는 것
+            
 
         }
         cellCollider.enabled = true;
-        
+        // 레이어 설정 추가할 것
                         
         
 
@@ -132,19 +143,51 @@ public class CellDrag : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDrag
         {
             return;
         }
+        targetCell.RemoveByRClick(tankCell.CellPosition, tankCell);
 
         // 우클릭 시 제거
-        if(startPosition != null)
+        if (tankCell.IsAttached==true) 
         {
-            this.transform.position = startPosition;
+            
+            return; 
         }
         
-        targetCell.RemoveCell(tankCell.CellPosition, tankCell);
-        
-        
+
+        maintenanceManager.ThrowCell(tankCell);
 
 
+    }
 
+    private void SetLayerChildren(GameObject target, int layer)
+    {
+        target.layer = layer;
 
+        foreach (Transform child in target.transform)
+        {
+            SetLayerChildren(child.gameObject, layer);
+        }
+    }
+
+    public void SetTarget(AssembleManager assembleManager)
+    {
+        targetCell = assembleManager;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (UIManager.instance == null)
+        {
+            return;
+        }
+        UIManager.instance.ShowCellInfo(tankCell);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (UIManager.instance == null)
+        {
+            return;
+        }
+        UIManager.instance.HideCellInfo();
     }
 }

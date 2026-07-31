@@ -4,9 +4,9 @@ public class TankStatus : MonoBehaviour
 {
 
 
-    private float maxWeight=100f;
+    [SerializeField]private float maxWeight=120f;
     
-    private float currentWeight = 0f;
+    [SerializeField]private float currentWeight = 0f;
     private float engineOutput;
 
 
@@ -14,7 +14,7 @@ public class TankStatus : MonoBehaviour
     private float baseRotateSpeed = 30f;
     private float speed;
     private float rotateSpeed;
-    private float speedRatioAtMaxWeight = 0.5f;
+    private float speedRatioAtMaxWeight = 0.6f;
     private float weightSpeedRatio;
     private float weightRotateRatio;
     private float weightRatio;
@@ -24,9 +24,16 @@ public class TankStatus : MonoBehaviour
 
     public float RotateSpeed => rotateSpeed;
     public float Speed => speed;
-    public float MaxWeight => maxWeight;
+    
     public float CurrentWeight => currentWeight;
     public float EngineOutput => engineOutput;
+
+    public float MaxWeight 
+    {
+        get { return maxWeight; } 
+        
+        set { maxWeight = value; } 
+    }
     
 
 
@@ -72,14 +79,15 @@ public class TankStatus : MonoBehaviour
     private void RefreshStatus()
     {
         // 추중비
-        weightRatio = currentWeight / maxWeight;
+        weightRatio = engineOutput / currentWeight;
 
         // 1부터 0.5(최대하중 속도비)까지 weightRatio의 비율로 나눔.
-        weightSpeedRatio = Mathf.Lerp(1f, speedRatioAtMaxWeight, weightRatio);
-        weightRotateRatio = Mathf.Lerp(1f, speedRatioAtMaxWeight, weightRatio);
+        weightSpeedRatio = Mathf.Sqrt( weightRatio / speedRatioAtMaxWeight);
+        weightSpeedRatio = Mathf.Clamp(weightSpeedRatio, 0.35f, 1.25f);
 
-        speed = (baseSpeed + engineOutput) * weightSpeedRatio;
-        rotateSpeed = (baseRotateSpeed + engineOutput) * weightRotateRatio;
+
+        speed = baseSpeed * weightSpeedRatio;
+        rotateSpeed = baseRotateSpeed * weightSpeedRatio;
         // 아래는 rigidbody mass
         rb.mass = 1f + currentWeight;
         

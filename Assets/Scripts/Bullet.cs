@@ -15,6 +15,7 @@ public class Bullet : MonoBehaviour
     Vector2 shotDir;
     bool isInit;
     private GameObject mainGun;    // 오브젝트 변수명 검토
+    private string poolId = "Bullet";
     float lifeTimer;
 
     private ProjectileHitInit hitInit;
@@ -57,7 +58,7 @@ public class Bullet : MonoBehaviour
             ricochetTimer += Time.deltaTime;
             if (ricochetTimer >= ricochetReturnTime)
             {
-                ObjectPool.instance.ReturnObject("Bullet", gameObject);
+                ObjectPool.instance.ReturnObject(poolId, gameObject);
             }
             return;
         }
@@ -65,7 +66,7 @@ public class Bullet : MonoBehaviour
         lifeTimer += Time.deltaTime;
         if (lifeTimer >= lifeTime)
         {
-            ObjectPool.instance.ReturnObject("Bullet", gameObject);
+            ObjectPool.instance.ReturnObject(poolId, gameObject);
         }
 
     }
@@ -90,6 +91,11 @@ public class Bullet : MonoBehaviour
         }
 
         rb.linearVelocity = shotDir * speed;
+    }
+
+    public void SetPoolId(string id)
+    {
+        poolId = id;
     }
 
     public void Init(Vector2 dir, float _speed, float _power, int _damage, float _lifeTime,float _penetration, LayerMask _targetLayer, GameObject rootObject)
@@ -120,6 +126,8 @@ public class Bullet : MonoBehaviour
         rb.constraints = defaultConstraints;
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0f;
+
+        SFXManager.instance.PlayFire();
 
     }
     public void CheckSensorHit(RaycastHit2D hit)
@@ -194,16 +202,19 @@ public class Bullet : MonoBehaviour
         switch (result)
         {
             case ProjectileHitResult.Passed:
+                break;
             case ProjectileHitResult.Penetrated:
-                //pass
+                SFXManager.instance.PlayDestroyed();
                 break;
             case ProjectileHitResult.Hitted:
-                ObjectPool.instance.ReturnObject("Bullet", gameObject);
+                SFXManager.instance.PlayHit();
+                ObjectPool.instance.ReturnObject(poolId, gameObject);
                 break;
 
             case ProjectileHitResult.Immuned:
             case ProjectileHitResult.Ricochet:
                 StartRicochet(hit.normal,hit.point);
+
                 //도탄 상태
                 break;
         }
@@ -222,7 +233,8 @@ public class Bullet : MonoBehaviour
         ricochetTimer = 0f;
 
         rb.linearVelocity = Vector2.zero;
-        
+
+        SFXManager.instance.PlayRicochet();
 
         bulletCollider.isTrigger = false;
         // z축 freeze 해제
