@@ -10,8 +10,8 @@ public class TankStatus : MonoBehaviour
     private float engineOutput;
 
 
-    private float baseSpeed = 2f;
-    private float baseRotateSpeed = 30f;
+    private float baseSpeed = 10f;
+    private float baseRotateSpeed = 45f;
     private float speed;
     private float rotateSpeed;
     private float speedRatioAtMaxWeight = 0.6f;

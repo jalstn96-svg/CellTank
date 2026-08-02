@@ -147,7 +147,7 @@ public abstract class TankCell : MonoBehaviour, Ihittable
         }
 
         CurrentDurability = maxDurability;
-
+        cellPhysics.RestoreVisual();
         OnRestored();   // 애니메이션이나 효과 추가
     }
     public void Disabled()

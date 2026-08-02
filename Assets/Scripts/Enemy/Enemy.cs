@@ -8,7 +8,7 @@ public class Enemy : MonoBehaviour
     int currentHp;
 
     [Header("Movement")]
-    float moveSpeed = 2f;
+    float moveSpeed = 4f;
     float rotateSpeed = 30f;
     float attachRange = 6f;   // 사거리는 탄 성능에 맞게 => 포탑의 bullet 인식
     float turretRotateSpeed = 30f;
@@ -42,7 +42,7 @@ public class Enemy : MonoBehaviour
 
 
     Rigidbody2D rb;
-    
+    float distance;
     //float fireTimer;
 
 
@@ -169,29 +169,29 @@ public class Enemy : MonoBehaviour
         Vector2 myPos = transform.position;
         Vector2 dir = (Vector2)playerPosition.position - myPos;
 
-        float distance = dir.magnitude;
+        distance = dir.magnitude;
 
-        if (distance>inRange)
-        { 
-            return false;
-        }
-
-        if(dir == Vector2.zero)
+        if (distance > inRange)
         {
             return false;
         }
 
-        dir = dir.normalized;
-        RaycastHit2D shotRay = Physics2D.Raycast(myPos, dir, inRange, playerLayer);
-
-        if(shotRay.collider == null)
+        if (dir == Vector2.zero)
         {
             return false;
         }
 
-        CorePhysics player = shotRay.collider.GetComponentInParent<CorePhysics>();
+        //dir = dir.normalized;
+        //RaycastHit2D shotRay = Physics2D.Raycast(myPos, dir, inRange, playerLayer);
 
-        return player != null;
+        //if(shotRay.collider == null)
+        //{
+        //    return false;
+        //}
+
+        //CorePhysics player = shotRay.collider.GetComponentInParent<CorePhysics>();
+
+        return true;
     }
 
     public ProjectileHitResult Hit(ref ProjectileHitInit hitInit)

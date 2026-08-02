@@ -44,6 +44,7 @@ public class TurretCell_C : TurretCell, ITurret
     }
 
     protected override void OnDeactivate()
+
     {
         
         base.OnDeactivate();

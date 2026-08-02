@@ -165,7 +165,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   killCount: 0
   waveUpgrade: 5
-  tankStatus: {fileID: 0}
+  tankStatus: {fileID: 696623866}
 --- !u!1 &20516849
 GameObject:
   m_ObjectHideFlags: 0
@@ -1330,6 +1330,7 @@ MonoBehaviour:
   disabledAlpha: 0.3
   spriteRenderers: []
   damagedBrightness: 0.5
+  disabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   destroyedSprites: []
   hideOnDisabled: []
 --- !u!114 &313027252
@@ -4782,6 +4783,7 @@ MonoBehaviour:
   disabledAlpha: 0.3
   spriteRenderers: []
   damagedBrightness: 0.5
+  disabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   destroyedSprites: []
   hideOnDisabled: []
 --- !u!114 &1092000928
@@ -5290,6 +5292,7 @@ MonoBehaviour:
   disabledAlpha: 0.3
   spriteRenderers: []
   damagedBrightness: 0.5
+  disabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   destroyedSprites: []
   hideOnDisabled: []
 --- !u!1 &1200936838
@@ -7905,6 +7908,7 @@ MonoBehaviour:
   disabledAlpha: 0.3
   spriteRenderers: []
   damagedBrightness: 0.5
+  disabledColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   destroyedSprites: []
   hideOnDisabled: []
 --- !u!114 &1790072218
@@ -9547,7 +9551,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 110, y: 100}
+  m_AnchoredPosition: {x: 110, y: 80}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2064319250

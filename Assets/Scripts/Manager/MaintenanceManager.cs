@@ -50,6 +50,10 @@ public class MaintenanceManager : MonoBehaviour
 
     public void CallMaintenance()
     {
+        if(coroutine != null)
+        {
+            return;
+        }
         if(GameManager.instance == null)
         {
             Debug.Log("gamemanager 인식 안됨");
@@ -71,11 +75,11 @@ public class MaintenanceManager : MonoBehaviour
         timer = waitTime;
         while (timer > 0f)
         {
-            timer -= Time.deltaTime;
-            if(GameManager.instance.State != GameState.Pause)
+            
+            if(GameManager.instance.State == GameState.Pause)
             {
-                coroutine = null;
-                yield break;
+                yield return null;
+                continue; 
             }
 
             if(GameManager.instance.State != GameState.MaintenanceCall)
@@ -83,6 +87,8 @@ public class MaintenanceManager : MonoBehaviour
                 coroutine = null;
                 yield break;
             }
+
+            timer -= Time.unscaledDeltaTime;
             UIManager.instance.UpdateMaintenanceCall(timer, waitTime);
 
             yield return null;

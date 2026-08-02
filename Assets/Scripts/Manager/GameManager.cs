@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Debug.Log("GameManager 작동");    //test
-        tankStatus = GetComponent<TankStatus>();
+        
 
         if (instance == null)
             instance = this;

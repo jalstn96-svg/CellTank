@@ -19,6 +19,8 @@ public class CellPhysics : MonoBehaviour
     [Header("Damage Visual")]
     [SerializeField]
     [Range(0f, 0.5f)] private float damagedBrightness = 0.75f;
+    [SerializeField] private Color disabledColor = Color.gray;
+    
 
     [Header("Destroyes Cell Sprite")]
     [SerializeField]
@@ -39,7 +41,7 @@ public class CellPhysics : MonoBehaviour
         
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
         Debug.Log($"{name} SpriteRenderer {spriteRenderers.Length}");
-
+        disabledColor.a = 0.5f;
         normalColors = new Color[spriteRenderers.Length];
         for(int i = 0; i< spriteRenderers.Length; i++)
         {
@@ -131,26 +133,32 @@ public class CellPhysics : MonoBehaviour
     {
         if (isDisabledVisual == true) { return; }
         isDisabledVisual = true;
-        RestoreBrightness();
+        
 
-        for(int i = 0; i < destroyedSprites.Length; i++)
+        foreach(SpriteRenderer spriteRenderer in spriteRenderers)
         {
-            DestroyedSprite data = destroyedSprites[i];
-            if(data.target == null || data.destroyedSprite == null)
-            {
-                continue;
-            }
-            data.target.sprite = data.destroyedSprite;
-
+            
+            spriteRenderer.color = disabledColor;
         }
 
-        foreach(SpriteRenderer target in hideOnDisabled)
-        {
-            if(target != null)
-            {
-                target.enabled = false;
-            }
-        }
+        //for(int i = 0; i < destroyedSprites.Length; i++)
+        //{
+        //    DestroyedSprite data = destroyedSprites[i];
+        //    if(data.target == null || data.destroyedSprite == null)
+        //    {
+        //        continue;
+        //    }
+        //    data.target.sprite = data.destroyedSprite;
+
+        //}
+
+        //foreach(SpriteRenderer target in hideOnDisabled)
+        //{
+        //    if(target != null)
+        //    {
+        //        target.enabled = false;
+        //    }
+        //}
     }
 
     private void RestoreBrightness()

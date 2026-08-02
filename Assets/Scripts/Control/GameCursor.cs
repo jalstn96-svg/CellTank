@@ -17,7 +17,7 @@ public class GameCursor : MonoBehaviour
             return;
         }
 
-        isPlaying = GameManager.instance.State == GameState.Playing;
+        isPlaying = GameManager.instance.State == GameState.Playing || GameManager.instance.State == GameState.MaintenanceCall;
 
         Cursor.visible = !isPlaying;
         cursorObject.SetActive(isPlaying);
