@@ -93,7 +93,7 @@ GameClear
 
 ### 기술 요소
 - Unity / C#
-- Abstract Class / Interface
+- Abstract Class
 - Interface
 - Dictionary / HashSet / Queue
 - Physics2D.Raycast
